@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+  *{
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+}
+.centered{
+  width: 90%;
+  margin: 0 auto;
+  border: 1px solid #000;
+  min-width: 260px;
+}
+li,ol{
+  list-style: none;
+}
+a{
+  text-decoration: none;
+}
+    body {
+      font-size: 50px;
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: #9eaeb3;
+    }
+
+    div {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    ul {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transition: all 1s;
+      transition-timing-function: ease-out;
+      top: 0;
+    }
+
+    li {
+      width: 100%;
+      height: 100%;
+    }
+
+    li:nth-child(odd) {
+      background: pink;
+    }
+
+    li:nth-child(even) {
+      background: #339cc1;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="div">
+    <ul id="ul">
+      <li>1</li>
+      <li>2</li>
+      <li>3</li>
+      <li>4</li>
+      没有更多了
+    </ul>
+  </div>
+</body>
+<script>
+  document.body.onload = () => {
+    let win_height = window.innerHeight;
+    let timeout;//定时器
+    let scroll = true;//页面是否可以滚动
+    let digit = 0;//当前是第几个子位置
+    let drag;//点击的位置
+    let ul_top = 0;//当前的top值
+    let html_height= 0;//整个界面的高度
+    let get_id = (id) => {//获取id
+      return document.getElementById(id);
+    }
+
+    let div = get_id('div');
+    let ul = get_id('ul');
+    let all_list = ul.children.length;//所有的子列表
+    console.log(all_list)
+    //设置高度
+    div.style.height = window.innerHeight + 'px';
+    html_height=window.innerHeight;
+    //检测高度变化
+    window.onresize = () => {
+      if (win_height != window.innerHeight) {
+        clearTimeout(timeout);
+        html_height=win_height = window.innerHeight;
+        timeout = setTimeout(() => {
+          div.style.height = window.innerHeight + 'px';
+        }, 300)
+      }
+    }
+
+    //火狐兼容
+    if(window.addEventListener){
+      window.addEventListener('DOMMouseScroll',(event)=>{
+        var  ev = event || window.event;
+        set_ul(ev)
+      })
+    }
+    //常规写法
+    window.onmousewheel = (ev) => {
+      var  ev = ev || window.event;
+      set_ul(ev)
+    }
+
+
+
+  
+    //点击的位置  手机端代码
+     window.addEventListener('touchstart',(e)=>{
+      var e = e || window.event;
+      drag = e.touches[0].pageY;
+    })
+    //滑动
+    ul.addEventListener('touchmove',(e)=>{
+      var e =e || window.event;
+      var target = e.target || e.srcElement;
+      ul.style.top = -target.offsetTop+e.touches[0].pageY-drag+'px';
+      })
+     
+    //滑动
+    // window.addEventListener('touchmove',(e)=>{
+    //   var e =e || window.event;
+    //   var s = e.touches[0].pageY;
+    //   //设置位置
+    //   ul.style.top = e.touches[0].pageY-drag+'px';
+    // })
+    //结束位置
+    window.addEventListener('touchend',(e)=>{
+      var e = e||window.event;
+      var sss = (e.changedTouches[0].pageY-drag)/html_height;
+      if(parseInt(ul.style.top)>0){
+        ul.style.top = "0px";
+      }
+      if(sss<-0.1){
+        up_under(true);
+      }else if(sss>0.1){
+        up_under();
+      }else{
+        ul.style.top = `-${digit * 100}%`;
+      }
+
+    })
+
+    //执行方法
+    var set_ul = (ev) => {
+      if (scroll) {
+        //火狐兼容
+        // let s = ev.wheelDelta||ev.detail;//上滚还是下滚
+        if (ev.wheelDelta < 0 ||ev.detail>0) {
+          up_under(true);
+        } else {
+          up_under();
+        }
+        ul_top = ul.style.top;
+      } else {
+        return
+      }
+
+    }
+    
+    let up_under = (ok)=>{
+      if(ok){
+        digit++;
+          if (digit >= all_list) {
+            digit = all_list - 1;
+            ul.style.top = `-${digit * 100}%`;
+            return
+          }
+          ul.style.top = `-${digit * 100}%`;
+          scroll = false;
+          setTimeout(() => {
+            scroll = true
+          }, 100);
+      }else{
+        digit--;
+        ul.style.top = `-${digit * 100}%`;
+          if (digit < 0) {
+            digit = 0;
+            return
+          }
+          ul.style.top = `-${digit * 100}%`;
+          scroll = false;
+          setTimeout(() => {
+            scroll = true
+          }, 100);
+      }
+    }
+  }
+</script>
+
+</html>
